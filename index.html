@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebChat</title>
+
+    <style>
+        body { width: 500px; margin: 0 auto; margin-top: 2rem; background-color: rgb(177, 175, 175); }
+        .send { width: 100%; margin: 0; padding: 0; margin-top: 1rem; }
+        input.text { width: 80%; margin: 0; padding: 0; padding: 5px; }
+        .btn { padding: 5px 0; width: 82px; background-color: #eee; border: 0; margin: 0; border: solid #eee; }
+        .btn:hover {background-color: #00e4bc;}
+        ul { list-style-type: none; width: 100%; padding: 0; margin: 0; }
+        li { padding: 5px 10px; }
+        li:nth-child(odd) { background-color: #eee; }
+    </style>
+</head>
+<body>
+    <!-- Mensagens -->
+    <ul class="ul" id="mensagens"></ul>
+
+    <!-- Escrever e enviar mensagens -->
+    <div class="send">
+        <input class="text" autofocus="" id="mensagem" autocomplete="off" placeholder="Escreva aqui sua mensagem!">
+        <button class="btn" id="enviar_mensagem">Enviar</button>
+    </div>
+
+    <!-- Client do SocketIO -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Ao clicar en ENTER, envia mensagens
+        document.getElementById("mensagem").addEventListener("keypress", function(e){
+            let key = e.which || e.keyCode;
+            if (key == 13){
+                enviar_mensagem();
+            }
+        });
+
+        // inicia o Client
+        const socket = io();
+        
+        // Lista de personagens
+        let nomeUsuario = prompt("Qual o seu nome?");
+        let ss = [
+            "Barney Ross",
+            "John Rambo",
+            "Nemesis",
+            "Ray Breslin",
+            "Raymond Tango",
+            "Rocky Balboa",
+            "StarHawk",
+            "Tenente Marion Cobretti",
+            "Tubarão-Rei"
+        ];
+
+        // Caso o usuário não informe um nome, entrará um nome aleatório da lista
+        if (nomeUsuario === null || nomeUsuario == "" || nomeUsuario == " ") {
+            nomeUsuario = ss[Math.floor(Math.random() * ss.length)];
+        }
+
+        socket.emit("chat message", `Bem vindo ${nomeUsuario}`);
+
+        // Adicionar evento no botão de enviar
+        document.getElementById("enviar_mensagem").addEventListener("click", enviar_mensagem);
+
+        function enviar_mensagem(){
+            msg = document.getElementById("mensagem").value;
+            if (msg.length > 0){
+                console.log(msg);
+                // juntar a mensagem com o usuário
+                socket.emit("chat message", `${nomeUsuario}: ${msg}`);
+                // Limpar o input
+                document.getElementById("mensagem").value = "";
+            }
+        }
+        // Adicionar mensagem às mensagens toda vez que uma surgir
+        socket.on("chat message", function(msg){
+            let ul = document.getElementById("mensagens");
+
+            let li = document.createElement("li");
+            let br = document.createElement("br");
+            li.appendChild(document.createTextNode(msg));
+            ul.appendChild(li);
+        });
+    </script>
+</body>
+</html>

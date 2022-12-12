@@ -1,0 +1,11 @@
+# Pasta gifs
+gifs
+
+# Pasta node_modules
+node_modules
+
+# Arquivo de variáveis de ambiente
+.env
+
+# Arquivo package-lock.json
+package-lock.json
